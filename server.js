@@ -8,7 +8,7 @@ const app = express();
 // Enable CORS for all domains
 // --------------------
 app.use(cors({
-    origin: "*",           // Allow requests from any frontend
+    origin: "*",           // Allow requests from any fronten
     methods: ["GET"],      // Only GET requests needed
     allowedHeaders: ["Content-Type"]
 }));
