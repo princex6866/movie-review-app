@@ -1,4 +1,4 @@
-const backendURL = "YOUR_BACKEND_URL_HERE/movie";
+const backendURL = "https://movie-review-app-production.up.railway.app";
 
 document.getElementById("darkToggle").onclick = () => {
     document.body.classList.toggle("dark");
