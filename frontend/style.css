@@ -1,0 +1,23 @@
+body {
+    font-family: Arial;
+    background: var(--bg);
+    color: var(--text);
+    transition: 0.3s;
+}
+:root {
+    --bg: #ffffff;
+    --text: #000000;
+}
+.dark {
+    --bg: #121212;
+    --text: #ffffff;
+}
+.container {
+    width: 70%;
+    margin: auto;
+    padding: 20px;
+}
+input, button {
+    padding: 10px;
+    margin: 5px;
+}
