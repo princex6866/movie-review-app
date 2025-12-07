@@ -6,7 +6,6 @@ document.getElementById("darkToggle").onclick = () => {
 
 async function searchMovie() {
     let q = document.getElementById("movieInput").value;
-
     let res = await fetch(`${backendURL}?q=${q}`);
     let data = await res.json();
 
