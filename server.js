@@ -4,9 +4,26 @@ import { fetchRedditComments } from "./reddit.js";
 
 const app = express();
 
-// Enable CORS for all origins
-app.use(cors({ origin: "*" }));
+// --------------------
+// Enable CORS for all domains
+// --------------------
+app.use(cors({
+    origin: "*",           // Allow requests from any frontend
+    methods: ["GET"],      // Only GET requests needed
+    allowedHeaders: ["Content-Type"]
+}));
 
+// --------------------
+// Debugging middleware (optional)
+// --------------------
+app.use((req, res, next) => {
+    console.log(`Request: ${req.method} ${req.url}`);
+    next();
+});
+
+// --------------------
+// Sentiment function
+// --------------------
 function extractSentiment(comment) {
     let text = comment.toLowerCase();
     let positive = ["good", "great", "amazing", "fantastic", "excellent", "love"];
@@ -18,28 +35,40 @@ function extractSentiment(comment) {
     return Math.max(1, Math.min(10, rating));
 }
 
+// --------------------
+// /movie route
+// --------------------
 app.get("/movie", async (req, res) => {
     const query = req.query.q;
-    if (!query) return res.json({ error: "Movie name required!" });
+    if (!query) return res.status(400).json({ error: "Movie name required!" });
 
-    const comments = await fetchRedditComments(query);
+    try {
+        const comments = await fetchRedditComments(query);
 
-    let processed = comments.map(c => ({
-        body: c.body,
-        score: c.score,
-        sentiment: extractSentiment(c.body)
-    }));
+        let processed = comments.map(c => ({
+            body: c.body,
+            score: c.score,
+            sentiment: extractSentiment(c.body)
+        }));
 
-    let avgRating = processed.reduce((a, b) => a + b.sentiment, 0) / processed.length;
+        let avgRating = processed.reduce((a, b) => a + b.sentiment, 0) / processed.length;
 
-    res.json({
-        total_comments: processed.length,
-        avg_rating: avgRating,
-        top_upvoted: processed.sort((a,b)=>b.score-a.score).slice(0,5),
-        top_downvoted: processed.sort((a,b)=>a.score-b.score).slice(0,5),
-        trend: processed.map(p => p.sentiment)
-    });
+        res.json({
+            total_comments: processed.length,
+            avg_rating: avgRating,
+            top_upvoted: processed.sort((a,b)=>b.score-a.score).slice(0,5),
+            top_downvoted: processed.sort((a,b)=>a.score-b.score).slice(0,5),
+            trend: processed.map(p => p.sentiment)
+        });
+
+    } catch (err) {
+        console.error("Error fetching comments:", err.message);
+        res.status(500).json({ error: "Failed to fetch comments" });
+    }
 });
 
+// --------------------
+// Start server on dynamic port
+// --------------------
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Backend running on port ${PORT}`));
